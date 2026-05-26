@@ -709,48 +709,12 @@ def main():
 
     if 'lang' not in st.session_state:
         st.session_state.lang = 'English'
-    if 'page_key' not in st.session_state:
-        st.session_state.page_key = 'home'
 
-    st.sidebar.markdown('### EthioHealth-AI')
-    st.sidebar.caption(get_label('description', st.session_state.lang))
     lang = 'English'
-    page_options = {
-        get_label('page_home', lang): 'home',
-        get_label('page_support', lang): 'support'
-    }
-    current_page_label = get_label(f"page_{st.session_state.page_key}", lang)
-    page_label = st.sidebar.radio(
-        get_label('page_selector', lang),
-        list(page_options.keys()),
-        index=list(page_options.keys()).index(current_page_label)
-    )
-    st.session_state.page_key = page_options[page_label]
-
+    st.sidebar.markdown('### EthioHealth-AI')
+    st.sidebar.caption(get_label('description', lang))
+    
     render_header(lang)
-
-    if st.session_state.page_key == 'home':
-        hero_col1, hero_col2 = st.columns([1.4, 1])
-        with hero_col1:
-            st.markdown(f"<div class='section-title'>{get_label('overview_header', lang)}</div>", unsafe_allow_html=True)
-            st.markdown(f"<p class='section-copy'>{get_label('overview_text', lang)}</p>", unsafe_allow_html=True)
-            st.markdown(f"<div class='section-title'>{get_label('home_description_title', lang)}</div>", unsafe_allow_html=True)
-            st.markdown(f"<p class='section-copy'>{get_label('home_description', lang)}</p>", unsafe_allow_html=True)
-        with hero_col2:
-            render_feature_card('CL', get_label('feature_clustering', lang), get_label('feature_clustering_desc', lang), '#2b6cb0')
-            render_feature_card('AI', get_label('feature_explain', lang), get_label('feature_explain_desc', lang), '#805ad5')
-
-        st.markdown('<hr />', unsafe_allow_html=True)
-        card_1, card_2, card_3, card_4 = st.columns(4)
-        with card_1:
-            render_feature_card('DX', get_label('feature_disease', lang), get_label('feature_disease_desc', lang), '#0f766e')
-        with card_2:
-            render_feature_card('RK', get_label('feature_risk', lang), get_label('feature_risk_desc', lang), '#b7791f')
-        with card_3:
-            render_feature_card('LOS', get_label('feature_stay', lang), get_label('feature_stay_desc', lang), '#2b6cb0')
-        with card_4:
-            render_feature_card('XAI', get_label('feature_explain', lang), get_label('feature_explain_desc', lang), '#4a5568')
-        return
 
     st.markdown(f"<h3 class='section-title'>{get_label('support_title', lang)}</h3>", unsafe_allow_html=True)
     st.write(get_label('support_intro', lang))

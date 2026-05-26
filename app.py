@@ -26,13 +26,24 @@ LANGUAGE_LABELS = {
     'fatigue': {'English': 'Fatigue', 'Amharic': 'ድካም'},
     'vomiting': {'English': 'Vomiting', 'Amharic': 'ማር'},
     'diarrhea': {'English': 'Diarrhea', 'Amharic': 'ዳይአሪያ'},
+    'chest_pain': {'English': 'Chest Pain', 'Amharic': 'የደረት ህመም'},
+    'shortness_of_breath': {'English': 'Shortness of Breath', 'Amharic': 'የትንፋሽ እጥረት'},
+    'dizziness': {'English': 'Dizziness', 'Amharic': 'ማዞር'},
     'temperature': {'English': 'Temperature (°C)', 'Amharic': 'ሙቀት (°C)'},
     'heart_rate': {'English': 'Heart Rate', 'Amharic': 'የልብ ግፊት'},
+    'wbc_count': {'English': 'WBC Count', 'Amharic': 'የነጭ ደም ሴል ብዛት'},
+    'hemoglobin': {'English': 'Hemoglobin', 'Amharic': 'ሄሞግሎቢን'},
+    'malaria_test': {'English': 'Malaria Test', 'Amharic': 'የወባ ምርመራ'},
     'comorbidity': {'English': 'Comorbidity', 'Amharic': 'የተጨማሪ ታማሚነት'},
     'season': {'English': 'Season', 'Amharic': 'የወቅት ጊዜ'},
+    'run_assessment': {'English': 'Generate Clinical Support', 'Amharic': 'የክሊኒክ ድጋፍ አዘጋጅ'},
     'predict_disease': {'English': 'Predict Disease', 'Amharic': 'የበሽታ እትንት'},
     'predict_risk': {'English': 'Predict Risk', 'Amharic': 'የአደጋ ደረጃ እትንት'},
     'predict_stay': {'English': 'Predict Stay', 'Amharic': 'የማረፊያ ጊዜ እትንት'},
+    'treatment_recommendation': {'English': 'Treatment Recommendation', 'Amharic': 'የሕክምና ምክር'},
+    'lab_recommendation': {'English': 'Lab Test Recommendation', 'Amharic': 'የላብራቶሪ ምርመራ ምክር'},
+    'model_performance': {'English': 'Model Performance', 'Amharic': 'የሞዴል አፈጻጸም'},
+    'ai_reason': {'English': 'Explainable AI Reason', 'Amharic': 'የAI ምክንያት'},
     'explanation': {'English': 'Explanation', 'Amharic': 'ምክንያት'},
     'patient_summary': {'English': 'Patient Summary', 'Amharic': 'የታካሚ ማጠቃለያ'},
     'confidence': {'English': 'Confidence', 'Amharic': 'እምነት'},
@@ -128,6 +139,10 @@ OPTION_TRANSLATIONS = {
     'Season': {
         'English': {'Summer': 'Summer', 'Autumn': 'Autumn', 'Winter': 'Winter', 'Spring': 'Spring'},
         'Amharic': {'Summer': 'ክረምት', 'Autumn': 'መጋቢት', 'Winter': 'ጥር', 'Spring': 'ጥርስ'}
+    },
+    'PositiveNegative': {
+        'English': {'Negative': 'Negative', 'Positive': 'Positive', 'Unknown': 'Unknown'},
+        'Amharic': {'Negative': 'ኔጌቲቭ', 'Positive': 'ፖዚቲቭ', 'Unknown': 'አይታወቅም'}
     }
 }
 
@@ -162,6 +177,9 @@ def load_artifacts():
         if not os.path.exists(path):
             raise FileNotFoundError(f"Required model artifact not found: {path}")
         artifacts[filename] = joblib.load(path)
+    for filename in ['recommendation_maps.joblib', 'training_metrics.joblib']:
+        path = os.path.join(MODEL_DIR, filename)
+        artifacts[filename] = joblib.load(path) if os.path.exists(path) else {}
     return artifacts
 
 
@@ -184,31 +202,77 @@ def display_explanation(model, input_df, feature_names):
         st.warning(f"Unable to explain prediction: {ex}")
 
 
-def collect_sidebar_inputs(lang: str):
-    st.sidebar.markdown('---')
-    st.sidebar.header(get_label('patient_profile', lang))
+def collect_inputs(lang: str):
+    st.markdown(f"#### {get_label('patient_profile', lang)}")
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        age = st.number_input(get_label('age', lang), min_value=0, max_value=120, value=35)
+        gender_display = st.selectbox(get_label('gender', lang), get_option_choices('Gender', lang))
+        region = st.selectbox(get_label('region', lang), ['Addis Ababa', 'Oromia', 'Amhara', 'Tigray', 'Southern', 'Afar', 'Somali', 'Benishangul', 'Gambela', 'Harari', 'Dire Dawa'])
+        temperature = st.number_input(get_label('temperature', lang), min_value=30.0, max_value=45.0, value=37.0, format='%.1f')
+        heart_rate = st.number_input(get_label('heart_rate', lang), min_value=30, max_value=200, value=80)
+        wbc_count = st.number_input(get_label('wbc_count', lang), min_value=1000, max_value=50000, value=8000)
+        hemoglobin = st.number_input(get_label('hemoglobin', lang), min_value=3.0, max_value=22.0, value=13.0, format='%.1f')
+        
+    with col2:
+        fever_display = st.selectbox(get_label('fever', lang), get_option_choices('YesNo', lang))
+        cough_display = st.selectbox(get_label('cough', lang), get_option_choices('YesNo', lang))
+        headache_display = st.selectbox(get_label('headache', lang), get_option_choices('YesNo', lang))
+        fatigue_display = st.selectbox(get_label('fatigue', lang), get_option_choices('YesNo', lang))
+        vomiting_display = st.selectbox(get_label('vomiting', lang), get_option_choices('YesNo', lang))
+        diarrhea_display = st.selectbox(get_label('diarrhea', lang), get_option_choices('YesNo', lang))
+        chest_pain_display = st.selectbox(get_label('chest_pain', lang), get_option_choices('YesNo', lang))
 
-    age = st.sidebar.number_input(get_label('age', lang), min_value=0, max_value=120, value=35)
-    gender_display = st.sidebar.selectbox(get_label('gender', lang), get_option_choices('Gender', lang))
+    with col3:
+        shortness_display = st.selectbox(get_label('shortness_of_breath', lang), get_option_choices('YesNo', lang))
+        dizziness_display = st.selectbox(get_label('dizziness', lang), get_option_choices('YesNo', lang))
+        malaria_display = st.selectbox(get_label('malaria_test', lang), get_option_choices('PositiveNegative', lang))
+        comorbidity_display = st.selectbox(get_label('comorbidity', lang), get_option_choices('YesNo', lang))
+        season_display = st.selectbox(get_label('season', lang), get_option_choices('Season', lang))
+        
+    st.markdown("<br>", unsafe_allow_html=True)
+    scol1, scol2, scol3 = st.columns(3)
+    with scol1:
+        symptoms = st.text_area(
+            '📝 ' + ('Symptoms' if lang == 'English' else 'ምልክቶች'),
+            placeholder=(
+                'Enter symptoms here (e.g., high fever, coughing, chest pain)'
+                if lang == 'English' else
+                'ምልክቶችን እዚህ ያስገቡ'
+            )
+        )
+    with scol2:
+        free_text_symptoms = st.text_area(
+            '📝 ' + ('Free Text Symptoms' if lang == 'English' else 'የታካሚ ምልክቶች (በነገር ቋንቋ)'),
+            placeholder=(
+                'I have had a high fever for 3 days, coughing and chest pain when breathing'
+                if lang == 'English' else
+                'ለ3 ቀን ከፍተኛ ሙቀት አለኝ፣ ሳምንታዊ ሳምንታዊ እና በመተንፈስ ጊዜ የደረት ህመም'
+            )
+        )
+    with scol3:
+        clinical_notes = st.text_area(
+            '🩺 ' + ('Clinical Notes / Additional Info' if lang == 'English' else 'የሕክምና ማስታወሻ / ተጨማሪ መረጃ'),
+            placeholder=(
+                'Patient has diabetes and recently traveled'
+                if lang == 'English' else
+                'ታካሚው የስኳር በሽታ አለው እና በቅርቡ ተጓዝቷል'
+            )
+        )
+
     gender = translate_option('Gender', gender_display, lang)
-    region = st.sidebar.selectbox(get_label('region', lang), ['Addis Ababa', 'Oromia', 'Amhara', 'Tigray', 'Southern', 'Afar', 'Somali', 'Benishangul', 'Gambela', 'Harari', 'Dire Dawa'])
-    fever_display = st.sidebar.selectbox(get_label('fever', lang), get_option_choices('YesNo', lang))
     fever = translate_option('YesNo', fever_display, lang)
-    cough_display = st.sidebar.selectbox(get_label('cough', lang), get_option_choices('YesNo', lang))
     cough = translate_option('YesNo', cough_display, lang)
-    headache_display = st.sidebar.selectbox(get_label('headache', lang), get_option_choices('YesNo', lang))
     headache = translate_option('YesNo', headache_display, lang)
-    fatigue_display = st.sidebar.selectbox(get_label('fatigue', lang), get_option_choices('YesNo', lang))
     fatigue = translate_option('YesNo', fatigue_display, lang)
-    vomiting_display = st.sidebar.selectbox(get_label('vomiting', lang), get_option_choices('YesNo', lang))
     vomiting = translate_option('YesNo', vomiting_display, lang)
-    diarrhea_display = st.sidebar.selectbox(get_label('diarrhea', lang), get_option_choices('YesNo', lang))
     diarrhea = translate_option('YesNo', diarrhea_display, lang)
-    temperature = st.sidebar.number_input(get_label('temperature', lang), min_value=30.0, max_value=45.0, value=37.0, format='%.1f')
-    heart_rate = st.sidebar.number_input(get_label('heart_rate', lang), min_value=30, max_value=200, value=80)
-    comorbidity_display = st.sidebar.selectbox(get_label('comorbidity', lang), get_option_choices('YesNo', lang))
+    chest_pain = translate_option('YesNo', chest_pain_display, lang)
+    shortness_of_breath = translate_option('YesNo', shortness_display, lang)
+    dizziness = translate_option('YesNo', dizziness_display, lang)
+    malaria_test = translate_option('PositiveNegative', malaria_display, lang)
     comorbidity = translate_option('YesNo', comorbidity_display, lang)
-    season_display = st.sidebar.selectbox(get_label('season', lang), get_option_choices('Season', lang))
     season = translate_option('Season', season_display, lang)
 
     inputs = {
@@ -221,259 +285,347 @@ def collect_sidebar_inputs(lang: str):
         'Fatigue': fatigue,
         'Vomiting': vomiting,
         'Diarrhea': diarrhea,
+        'Chest Pain': chest_pain,
+        'Shortness of Breath': shortness_of_breath,
+        'Dizziness': dizziness,
         'Temperature': temperature,
         'Heart Rate': heart_rate,
+        'WBC Count': wbc_count,
+        'Hemoglobin': hemoglobin,
+        'Malaria Test': malaria_test,
         'Comorbidity': comorbidity,
-        'Season': season
+        'Season': season,
+        'Symptoms': symptoms,
+        'Free Text Symptoms': free_text_symptoms,
+        'Clinical Notes': clinical_notes
     }
     return inputs
+
+
+def format_confidence(value):
+    return f"{value * 100:.0f}%" if value else "N/A"
+
+
+def get_recommendation(recommendation_maps, key, disease_label):
+    value = recommendation_maps.get(key, {}).get(disease_label)
+    if value:
+        return value
+    return 'Review local clinical protocol'
+
+
+def build_ai_reason(inputs, disease_label):
+    reasons = []
+    if inputs.get('Temperature', 0) >= 38:
+        reasons.append('high temperature')
+    if inputs.get('Cough') == 'Yes':
+        reasons.append('cough')
+    if inputs.get('Chest Pain') == 'Yes':
+        reasons.append('chest pain')
+    if inputs.get('Shortness of Breath') == 'Yes':
+        reasons.append('shortness of breath')
+    if inputs.get('WBC Count', 0) >= 11000:
+        reasons.append('high WBC count')
+    if inputs.get('Malaria Test') == 'Positive':
+        reasons.append('positive malaria test')
+    if not reasons:
+        reasons.append('the submitted symptoms, vitals, and lab results')
+    return f"{' + '.join(reasons)} -> {disease_label}"
 
 
 def render_styles():
     st.markdown(
         """
         <style>
-            :root {
-                --ink: #17211d;
-                --muted: #64736d;
-                --line: #dfe8e3;
-                --panel: #ffffff;
-                --soft: #f4f8f6;
-                --teal: #0f766e;
-                --green: #2f855a;
-                --amber: #b7791f;
-                --blue: #2b6cb0;
-            }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
-            .stApp {
-                background:
-                    radial-gradient(circle at 18% 6%, rgba(15, 118, 110, 0.08), transparent 28%),
-                    linear-gradient(180deg, #f8fbfa 0%, #eef5f1 100%);
-                color: var(--ink);
-            }
+        :root {
+            --ink: #f8fafc;
+            --muted: #94a3b8;
+            --line: rgba(255, 255, 255, 0.1);
+            --panel: rgba(30, 41, 59, 0.7);
+            --teal: #2dd4bf;
+            --blue: #38bdf8;
+            --amber: #fbbf24;
+        }
 
-            section[data-testid="stSidebar"] {
-                background: #ffffff;
-                border-right: 1px solid var(--line);
-            }
+        html, body, [class*="css"] {
+            font-family: 'Outfit', sans-serif !important;
+        }
 
-            section[data-testid="stSidebar"] > div {
-                padding-top: 1.6rem;
-            }
+        .stApp {
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(45, 212, 191, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.15), transparent 25%),
+                #0f172a;
+        }
 
-            .block-container {
-                padding-top: 2rem;
-                padding-bottom: 3rem;
-                max-width: 1180px;
-            }
+        .block-container {
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+            max-width: 1180px;
+        }
 
-            .app-shell {
-                border: 1px solid rgba(15, 118, 110, 0.14);
-                border-radius: 8px;
-                padding: 28px 30px;
-                background: linear-gradient(135deg, #ffffff 0%, #eef8f4 100%);
-                box-shadow: 0 18px 45px rgba(20, 83, 70, 0.10);
-                margin-bottom: 22px;
-            }
+        /* Glassmorphism Panels */
+        .app-shell, .feature-card, .result-card, .status-tile, .summary-card, div[data-testid="stMetric"] {
+            background: rgba(30, 41, 59, 0.5) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        }
 
-            .eyebrow {
-                color: var(--teal);
-                font-size: 0.78rem;
-                font-weight: 800;
-                letter-spacing: 0;
-                text-transform: uppercase;
-                margin-bottom: 10px;
-            }
+        .app-shell:hover, .feature-card:hover, .status-tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(45, 212, 191, 0.15);
+            border-color: rgba(45, 212, 191, 0.3);
+        }
 
+        .app-shell {
+            padding: 40px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(30,41,59,0.7) 0%, rgba(15,23,42,0.8) 100%) !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-shell::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: skewX(-20deg);
+            animation: shine 6s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .eyebrow {
+            color: var(--teal);
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            text-shadow: 0 0 10px rgba(45, 212, 191, 0.4);
+        }
+
+        .hero-title {
+            color: #ffffff;
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin: 0 0 15px;
+            background: linear-gradient(to right, #2dd4bf, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            color: var(--muted);
+            font-size: 1.15rem;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0;
+        }
+
+        .status-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .status-tile {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .status-value {
+            color: #ffffff;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #2dd4bf, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-title {
+            color: #ffffff;
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin: 20px 0 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px; left: 0;
+            width: 40px; height: 3px;
+            background: var(--teal);
+            border-radius: 2px;
+        }
+
+        .section-copy {
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 24px;
+            font-size: 1.05rem;
+        }
+
+        .feature-card {
+            min-height: 180px;
+            padding: 24px;
+            border-top: 4px solid var(--teal);
+        }
+
+        .feature-code {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-title {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-copy {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .result-card {
+            padding: 24px;
+            border-left: 4px solid var(--blue);
+            margin-bottom: 16px;
+            border-top: none;
+        }
+
+        .result-label {
+            color: var(--teal);
+            font-size: 0.9rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-top: 8px;
+        }
+
+        .summary-card {
+            padding: 24px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-item {
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .summary-item:hover {
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(45, 212, 191, 0.3);
+        }
+
+        .summary-key {
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-value {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-top: 4px;
+            word-break: break-word;
+        }
+
+        /* Modern Button Styling */
+        .stButton > button {
+            width: 100%;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.05rem;
+            min-height: 52px;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(13, 148, 136, 0.5);
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+        }
+
+        .stButton > button:active {
+            transform: translateY(1px);
+        }
+
+        hr {
+            border-color: rgba(255, 255, 255, 0.1);
+            margin: 2.5rem 0;
+        }
+
+        @media (max-width: 760px) {
             .hero-title {
-                color: #12372f;
-                font-size: 2.45rem;
-                font-weight: 800;
-                line-height: 1.12;
-                margin: 0 0 10px;
+                font-size: 2.2rem;
             }
-
-            .hero-subtitle {
-                color: #3e4f49;
-                font-size: 1.04rem;
-                line-height: 1.65;
-                max-width: 760px;
-                margin: 0;
+            .app-shell {
+                padding: 30px 20px;
             }
-
             .status-row {
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 12px;
-                margin-top: 22px;
+                grid-template-columns: 1fr;
             }
-
-            .status-tile,
-            .feature-card,
-            .result-card,
-            .summary-card {
-                border: 1px solid var(--line);
-                border-radius: 8px;
-                background: var(--panel);
-                box-shadow: 0 10px 24px rgba(23, 33, 29, 0.06);
-            }
-
-            .status-tile {
-                padding: 14px 16px;
-            }
-
-            .status-value {
-                color: #12372f;
-                font-size: 1.35rem;
-                font-weight: 800;
-                line-height: 1.1;
-            }
-
-            .status-label {
-                color: var(--muted);
-                font-size: 0.84rem;
-                margin-top: 5px;
-            }
-
-            .section-title {
-                color: #12372f;
-                font-size: 1.35rem;
-                font-weight: 800;
-                margin: 8px 0 12px;
-            }
-
-            .section-copy {
-                color: #4a5b55;
-                line-height: 1.65;
-                margin-bottom: 18px;
-            }
-
-            .feature-card {
-                min-height: 158px;
-                padding: 18px;
-                border-top: 4px solid var(--teal);
-            }
-
-            .feature-code {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 38px;
-                height: 38px;
-                border-radius: 8px;
-                color: #ffffff;
-                background: var(--teal);
-                font-weight: 800;
-                margin-bottom: 13px;
-            }
-
-            .feature-title {
-                color: #17211d;
-                font-weight: 800;
-                font-size: 1rem;
-                margin-bottom: 8px;
-            }
-
-            .feature-copy {
-                color: var(--muted);
-                font-size: 0.92rem;
-                line-height: 1.55;
-            }
-
-            .result-card {
-                padding: 18px;
-                min-height: 132px;
-                border-top: 4px solid var(--blue);
-                margin-bottom: 14px;
-            }
-
-            .result-label {
-                color: var(--muted);
-                font-size: 0.82rem;
-                font-weight: 700;
-                text-transform: uppercase;
-            }
-
-            .result-value {
-                color: #102a24;
-                font-size: 1.35rem;
-                font-weight: 800;
-                margin-top: 6px;
-            }
-
-            .summary-card {
-                padding: 18px;
-            }
-
-            .summary-grid {
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 10px;
-            }
-
-            .summary-item {
-                border: 1px solid #e4ece8;
-                border-radius: 8px;
-                padding: 10px 12px;
-                background: #fbfdfc;
-            }
-
-            .summary-key {
-                color: var(--muted);
-                font-size: 0.78rem;
-                font-weight: 700;
-            }
-
-            .summary-value {
-                color: #17211d;
-                font-weight: 800;
-                margin-top: 2px;
-                word-break: break-word;
-            }
-
-            .stButton > button {
-                width: 100%;
-                border-radius: 8px;
-                border: 1px solid rgba(15, 118, 110, 0.22);
-                background: #0f766e;
-                color: #ffffff;
-                font-weight: 800;
-                min-height: 44px;
-                box-shadow: 0 8px 18px rgba(15, 118, 110, 0.18);
-            }
-
-            .stButton > button:hover {
-                border-color: #115e59;
-                background: #115e59;
-                color: #ffffff;
-            }
-
-            div[data-testid="stMetric"] {
-                background: #ffffff;
-                border: 1px solid var(--line);
-                border-radius: 8px;
-                padding: 12px;
-            }
-
-            hr {
-                border-color: var(--line);
-                margin: 1.4rem 0;
-            }
-
-            @media (max-width: 760px) {
-                .hero-title {
-                    font-size: 1.8rem;
-                }
-
-                .app-shell {
-                    padding: 22px 18px;
-                }
-
-                .status-row,
-                .summary-grid {
-                    grid-template-columns: 1fr;
-                }
-            }
+        }
         </style>
         """,
         unsafe_allow_html=True
@@ -489,8 +641,8 @@ def render_header(lang: str):
             <p class="hero-subtitle">{get_label('app_subtitle', lang)}</p>
             <div class="status-row">
                 <div class="status-tile">
-                    <div class="status-value">3</div>
-                    <div class="status-label">Prediction tasks</div>
+                    <div class="status-value">5</div>
+                    <div class="status-label">Clinical outputs</div>
                 </div>
                 <div class="status-tile">
                     <div class="status-value">10+</div>
@@ -507,11 +659,11 @@ def render_header(lang: str):
     )
 
 
-def render_feature_card(code: str, title: str, description: str, accent: str = '#0f766e'):
+def render_feature_card(code: str, title: str, description: str, accent: str = '#2dd4bf'):
     st.markdown(
         f"""
         <div class="feature-card" style="border-top-color: {accent};">
-            <div class="feature-code" style="background: {accent};">{code}</div>
+            <div class="feature-code" style="background: rgba(255,255,255,0.1); border: 1px solid {accent}40; color: {accent}; box-shadow: 0 0 15px {accent}30;">{code}</div>
             <div class="feature-title">{title}</div>
             <div class="feature-copy">{description}</div>
         </div>
@@ -523,7 +675,7 @@ def render_feature_card(code: str, title: str, description: str, accent: str = '
 def render_result(label: str, value: str, detail: str, accent: str):
     st.markdown(
         f"""
-        <div class="result-card" style="border-top-color: {accent};">
+        <div class="result-card" style="border-left-color: {accent};">
             <div class="result-label">{label}</div>
             <div class="result-value">{value}</div>
             <div class="feature-copy">{detail}</div>
@@ -534,6 +686,7 @@ def render_result(label: str, value: str, detail: str, accent: str):
 
 
 def render_patient_summary(inputs):
+    long_keys = ['Symptoms', 'Free Text Symptoms', 'Clinical Notes']
     summary_items = ''.join(
         f"""
         <div class="summary-item">
@@ -541,12 +694,24 @@ def render_patient_summary(inputs):
             <div class="summary-value">{value}</div>
         </div>
         """
-        for key, value in inputs.items()
+        for key, value in inputs.items() if key not in long_keys and str(value).strip() != ''
+    )
+    long_items = ''.join(
+        f"""
+        <div class="summary-item" style="grid-column: 1 / -1; margin-top: 8px;">
+            <div class="summary-key">{key}</div>
+            <div class="summary-value" style="white-space: pre-wrap; font-weight: 500; font-size: 0.95rem; line-height: 1.5;">{value}</div>
+        </div>
+        """
+        for key, value in inputs.items() if key in long_keys and str(value).strip() != ''
     )
     st.markdown(
         f"""
         <div class="summary-card">
-            <div class="summary-grid">{summary_items}</div>
+            <div class="summary-grid">
+                {summary_items}
+                {long_items}
+            </div>
         </div>
         """,
         unsafe_allow_html=True
@@ -608,8 +773,9 @@ def main():
             render_feature_card('XAI', get_label('feature_explain', lang), get_label('feature_explain_desc', lang), '#4a5568')
         return
 
-    st.markdown(f"<div class='section-title'>{get_label('support_title', lang)}</div>", unsafe_allow_html=True)
-    st.markdown(f"<p class='section-copy'>{get_label('support_intro', lang)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<h3 class='section-title'>{get_label('support_title', lang)}</h3>", unsafe_allow_html=True)
+    st.write(get_label('support_intro', lang))
+
     try:
         artifacts = load_artifacts()
     except FileNotFoundError as e:
@@ -617,7 +783,7 @@ def main():
         st.info(get_label('model_missing', lang))
         return
 
-    inputs = collect_sidebar_inputs(lang)
+    inputs = collect_inputs(lang)
     input_df = build_input_dataframe(inputs)
     preprocessor = artifacts['preprocessor.joblib']
 
@@ -636,32 +802,53 @@ def main():
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown('<div class="result-label">Disease model</div>', unsafe_allow_html=True)
-        if st.button(get_label('predict_disease', lang), type='primary', use_container_width=True):
+        if st.button(get_label('predict_disease', lang)):
             disease_pred = disease_model.predict(processed_input)
             disease_proba = disease_model.predict_proba(processed_input) if hasattr(disease_model, 'predict_proba') else None
             disease_label = disease_encoder.inverse_transform(disease_pred)[0]
-            confidence = get_confidence(disease_proba)
-            render_result(get_label('predict_disease', lang), disease_label, f"{get_label('confidence', lang)}: {confidence:.2f}", '#0f766e')
+            st.success(f"{get_label('predict_disease', lang)}: {disease_label}")
+            st.write(f"{get_label('confidence', lang)}: {get_confidence(disease_proba):.2f}")
             st.markdown(f"**{get_label('explanation', lang)}**")
             display_explanation(disease_model, processed_input, feature_names)
 
     with col2:
-        st.markdown('<div class="result-label">Risk model</div>', unsafe_allow_html=True)
-        if st.button(get_label('predict_risk', lang), type='primary', use_container_width=True):
+        if st.button(get_label('predict_risk', lang)):
             risk_pred = risk_model.predict(processed_input)
             risk_proba = risk_model.predict_proba(processed_input) if hasattr(risk_model, 'predict_proba') else None
             risk_label = risk_encoder.inverse_transform(risk_pred)[0]
-            confidence = get_confidence(risk_proba)
-            render_result(get_label('predict_risk', lang), risk_label, f"{get_label('confidence', lang)}: {confidence:.2f}", '#b7791f')
+            st.warning(f"{get_label('predict_risk', lang)}: {risk_label}")
+            st.write(f"{get_label('confidence', lang)}: {get_confidence(risk_proba):.2f}")
             st.markdown(f"**{get_label('explanation', lang)}**")
             display_explanation(risk_model, processed_input, feature_names)
 
     with col3:
-        st.markdown('<div class="result-label">Stay model</div>', unsafe_allow_html=True)
-        if st.button(get_label('predict_stay', lang), type='primary', use_container_width=True):
+        if st.button(get_label('predict_stay', lang)):
             stay_pred = stay_model.predict(processed_input)
-            render_result(get_label('predict_stay', lang), f"{float(stay_pred[0]):.1f} days", get_label('this_estimate', lang), '#2b6cb0')
+            st.info(f"{get_label('predict_stay', lang)}: {float(stay_pred[0]):.1f} days")
+            st.write(get_label('this_estimate', lang))
+
+    st.markdown('---')
+
+    metrics = artifacts.get('training_metrics.joblib', {})
+    disease_label_placeholder = "Pending Prediction"
+    ai_reason = build_ai_reason(inputs, disease_label_placeholder)
+
+    st.markdown(f"<div class='section-title'>{get_label('ai_reason', lang)}</div>", unsafe_allow_html=True)
+    render_result(get_label('explanation', lang), ai_reason, 'Key clinical signals supporting the prediction.', '#0f766e')
+    with st.expander('Feature importance details'):
+        display_explanation(disease_model, processed_input, feature_names)
+
+    st.markdown(f"<div class='section-title'>{get_label('model_performance', lang)}</div>", unsafe_allow_html=True)
+    perf1, perf2, perf3 = st.columns(3)
+    with perf1:
+        st.metric('Disease Accuracy', f"{metrics.get('best_disease_accuracy', 0) * 100:.1f}%")
+        st.caption(f"Best model: {metrics.get('best_disease_model', 'N/A')}")
+    with perf2:
+        st.metric('Risk Accuracy', f"{metrics.get('best_risk_accuracy', 0) * 100:.1f}%")
+        st.caption(f"Best model: {metrics.get('best_risk_model', 'N/A')}")
+    with perf3:
+        st.metric('LOS RMSE', f"{metrics.get('stay_rmse', 0):.2f} days")
+        st.caption(f"Training rows: {metrics.get('training_rows', 'N/A')}")
 
     st.markdown('<hr />', unsafe_allow_html=True)
     st.markdown(f"<div class='section-title'>{get_label('patient_summary', lang)}</div>", unsafe_allow_html=True)

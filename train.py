@@ -28,12 +28,37 @@ def save_model(model, path):
     print(f"Saved model: {path}")
 
 
-def train_models(data_path: str, output_dir: str):
+def most_common_by_disease(df, value_column):
+    if value_column not in df.columns:
+        return {}
+    mapping = {}
+    for disease, group in df.groupby('Disease'):
+        values = group[value_column].dropna().astype(str).str.strip()
+        values = values[values != '']
+        if not values.empty:
+            mapping[str(disease)] = values.mode().iloc[0]
+    return mapping
+
+
+def train_models(data_path: str, output_dir: str, max_classification_rows: int = 10000):
     df = load_dataset(data_path)
     expected_features = [
         'Age', 'Gender', 'Region', 'Fever', 'Cough', 'Headache', 'Fatigue',
-        'Vomiting', 'Diarrhea', 'Temperature', 'Heart Rate', 'Comorbidity', 'Season'
+        'Vomiting', 'Diarrhea', 'Chest Pain', 'Shortness of Breath', 'Dizziness',
+        'Temperature', 'Heart Rate', 'WBC Count', 'Hemoglobin', 'Malaria Test',
+        'Comorbidity', 'Season'
     ]
+    default_values = {
+        'Chest Pain': 'No',
+        'Shortness of Breath': 'No',
+        'Dizziness': 'No',
+        'WBC Count': np.nan,
+        'Hemoglobin': np.nan,
+        'Malaria Test': 'Unknown'
+    }
+    for col, default in default_values.items():
+        if col not in df.columns:
+            df[col] = default
     for col in expected_features + ['Disease', 'Risk_Level', 'Length_of_Stay']:
         if col not in df.columns:
             raise ValueError(f"Missing expected column: {col}")
@@ -44,7 +69,7 @@ def train_models(data_path: str, output_dir: str):
     y_risk, risk_encoder = encode_labels(df, 'Risk_Level')
     y_stay = df['Length_of_Stay'].replace({np.nan: 0}).astype(float)
 
-    numeric_features = ['Age', 'Temperature', 'Heart Rate']
+    numeric_features = ['Age', 'Temperature', 'Heart Rate', 'WBC Count', 'Hemoglobin']
     categorical_features = [col for col in feature_columns if col not in numeric_features]
 
     preprocessor = build_preprocessor(numeric_features, categorical_features)
@@ -52,18 +77,38 @@ def train_models(data_path: str, output_dir: str):
     X_processed = preprocessor.transform(X)
     feature_names = extract_feature_names(preprocessor, numeric_features, categorical_features)
 
-    X_train_clf, X_test_clf, y_train_disease, y_test_disease = train_test_split(
-        X_processed, y_disease, test_size=0.2, random_state=42, stratify=y_disease
-    )
-    _, _, y_train_risk, y_test_risk = train_test_split(
-        X_processed, y_risk, test_size=0.2, random_state=42, stratify=y_risk
+    if max_classification_rows and len(X_processed) > max_classification_rows:
+        print(
+            f"\nUsing a stratified sample of {max_classification_rows} rows "
+            f"for classification model comparison from {len(X_processed)} total rows."
+        )
+        X_clf, _, y_disease_clf, _, y_risk_clf, _ = train_test_split(
+            X_processed,
+            y_disease,
+            y_risk,
+            train_size=max_classification_rows,
+            random_state=42,
+            stratify=y_disease
+        )
+    else:
+        X_clf = X_processed
+        y_disease_clf = y_disease
+        y_risk_clf = y_risk
+
+    X_train_clf, X_test_clf, y_train_disease, y_test_disease, y_train_risk, y_test_risk = train_test_split(
+        X_clf,
+        y_disease_clf,
+        y_risk_clf,
+        test_size=0.2,
+        random_state=42,
+        stratify=y_disease_clf
     )
     X_train_reg, X_test_reg, y_train_stay, y_test_stay = train_test_split(
         X_processed, y_stay, test_size=0.2, random_state=42
     )
-    y_multi = np.column_stack((y_disease, y_risk))
+    y_multi = np.column_stack((y_disease_clf, y_risk_clf))
     X_train_multi, X_test_multi, y_train_multi, y_test_multi = train_test_split(
-        X_processed, y_multi, test_size=0.2, random_state=42, stratify=y_disease
+        X_clf, y_multi, test_size=0.2, random_state=42, stratify=y_disease_clf
     )
 
     classification_models = {
@@ -122,7 +167,7 @@ def train_models(data_path: str, output_dir: str):
 
     print('\nTraining multi-task model for Disease and Risk Level Prediction...')
     multi_task_model = MultiOutputClassifier(
-        RandomForestClassifier(n_estimators=150, max_depth=10, random_state=42),
+        RandomForestClassifier(n_estimators=50, max_depth=6, random_state=42),
         n_jobs=-1
     )
     multi_task_model.fit(X_train_multi, y_train_multi)
@@ -141,7 +186,7 @@ def train_models(data_path: str, output_dir: str):
     print(f"    f1_score: {multi_risk_report['f1_score']:.4f}")
 
     print('\nTraining regression model for Length of Stay Prediction...')
-    stay_model = RandomForestRegressor(n_estimators=150, random_state=42)
+    stay_model = RandomForestRegressor(n_estimators=20, max_depth=6, n_jobs=-1, random_state=42)
     stay_model.fit(X_train_reg, y_train_stay)
     y_pred_stay = stay_model.predict(X_test_reg)
     stay_report = evaluate_regression(y_test_stay, y_pred_stay)
@@ -149,6 +194,25 @@ def train_models(data_path: str, output_dir: str):
     print(f"  rmse: {stay_report['rmse']:.4f}")
     print(f"  mae: {stay_report['mae']:.4f}")
     print(f"  r2: {stay_report['r2']:.4f}")
+
+    recommendation_maps = {
+        'treatment_by_disease': most_common_by_disease(df, 'Treatment'),
+        'lab_order_by_disease': most_common_by_disease(df, 'Lab Order')
+    }
+    training_metrics = {
+        'best_disease_model': best_clf_name,
+        'best_disease_f1': float(scores[best_clf_name]['f1_score']),
+        'best_disease_accuracy': float(scores[best_clf_name]['accuracy']),
+        'best_risk_model': best_risk_name,
+        'best_risk_f1': float(risk_scores[best_risk_name]['f1_score']),
+        'best_risk_accuracy': float(risk_scores[best_risk_name]['accuracy']),
+        'multi_task_disease_f1': float(multi_disease_report['f1_score']),
+        'multi_task_risk_f1': float(multi_risk_report['f1_score']),
+        'stay_rmse': float(stay_report['rmse']),
+        'stay_mae': float(stay_report['mae']),
+        'training_rows': int(len(df)),
+        'classification_rows': int(len(X_clf))
+    }
 
     print('\nTraining K-Means clustering model...')
     kmeans_model = KMeans(n_clusters=4, random_state=42, n_init=10)
@@ -174,6 +238,8 @@ def train_models(data_path: str, output_dir: str):
     save_model(kmeans_model, os.path.join(model_dir, 'kmeans_model.joblib'))
     save_model(dbscan_model, os.path.join(model_dir, 'dbscan_model.joblib'))
     save_model(feature_names, os.path.join(model_dir, 'feature_names.joblib'))
+    save_model(recommendation_maps, os.path.join(model_dir, 'recommendation_maps.joblib'))
+    save_model(training_metrics, os.path.join(model_dir, 'training_metrics.joblib'))
 
     print('\nTraining complete. Models and preprocessing artifacts are saved in the models folder.')
 
@@ -183,5 +249,7 @@ if __name__ == '__main__':
     parser.add_argument('--data', type=str, default='ethiopia_health_data.csv',
                         help='Path to the training CSV file.')
     parser.add_argument('--output', type=str, default='.', help='Root output folder for saved models.')
+    parser.add_argument('--max-classification-rows', type=int, default=10000,
+                        help='Maximum rows used to compare classification models. Use 0 for all rows.')
     args = parser.parse_args()
-    train_models(args.data, args.output)
+    train_models(args.data, args.output, args.max_classification_rows)

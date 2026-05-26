@@ -8,15 +8,24 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, mean_squared_error, mean_absolute_error, r2_score
 
 
-def load_dataset(csv_path: str) -> pd.DataFrame:
-    if not os.path.exists(csv_path):
+def load_dataset(data_path: str) -> pd.DataFrame:
+    if not os.path.exists(data_path):
         raise FileNotFoundError(
-            f"CSV dataset not found at {csv_path}. "
+            f"Dataset not found at {data_path}. "
             "Place your dataset in the project root or pass the correct --data path."
         )
-    df = pd.read_csv(csv_path)
+    _, extension = os.path.splitext(data_path.lower())
+    if extension in {'.xlsx', '.xls'}:
+        df = pd.read_excel(data_path)
+    else:
+        df = pd.read_csv(data_path)
+    df = df.rename(columns={column: column.replace('_', ' ') for column in df.columns})
+    df = df.rename(columns={
+        'Risk Level': 'Risk_Level',
+        'Length of Stay': 'Length_of_Stay'
+    })
     if df.empty:
-        raise ValueError("The dataset is empty. Please provide a valid CSV file.")
+        raise ValueError("The dataset is empty. Please provide a valid CSV or Excel file.")
     return df
 
 

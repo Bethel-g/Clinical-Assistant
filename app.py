@@ -9,140 +9,117 @@ from utils import validate_numeric_value, explain_prediction
 MODEL_DIR = 'models'
 
 LANGUAGE_LABELS = {
-    'app_title': {'English': 'EthioHealth-AI Clinical Assistant', 'Amharic': 'EthioHealth-AI ለክሊኒክ እርዳታ'},
-    'app_subtitle': {'English': 'Ethiopian Clinical Decision Support with explainable AI', 'Amharic': 'የኢትዮጵያ የሕክምና ዳይግኖስቲክ ድጋፍ ከተገለፀ የAI እይታ'},
-    'language_label': {'English': 'Language', 'Amharic': 'ቋንቋ'},
-    'sidebar_title': {'English': 'EthioHealth-AI Language Switch', 'Amharic': 'EthioHealth-AI ቋንቋ ቀይር'},
-    'page_selector': {'English': 'Navigation', 'Amharic': 'አሰሳ'},
-    'page_home': {'English': 'Home', 'Amharic': 'መነሻ'},
-    'page_support': {'English': 'Support', 'Amharic': 'ድጋፍ'},
-    'patient_profile': {'English': 'Patient Profile', 'Amharic': 'የታካሚ መረጃ'},
-    'age': {'English': 'Age', 'Amharic': 'ዕድሜ'},
-    'gender': {'English': 'Gender', 'Amharic': 'ጾታ'},
-    'region': {'English': 'Region', 'Amharic': 'ክልል'},
-    'fever': {'English': 'Fever', 'Amharic': 'የሙቀት ምልክት'},
-    'cough': {'English': 'Cough', 'Amharic': 'ሕክምና ይዘት'},
-    'headache': {'English': 'Headache', 'Amharic': 'ርእስ ህመም'},
-    'fatigue': {'English': 'Fatigue', 'Amharic': 'ድካም'},
-    'vomiting': {'English': 'Vomiting', 'Amharic': 'ማር'},
-    'diarrhea': {'English': 'Diarrhea', 'Amharic': 'ዳይአሪያ'},
-    'chest_pain': {'English': 'Chest Pain', 'Amharic': 'የደረት ህመም'},
-    'shortness_of_breath': {'English': 'Shortness of Breath', 'Amharic': 'የትንፋሽ እጥረት'},
-    'dizziness': {'English': 'Dizziness', 'Amharic': 'ማዞር'},
-    'temperature': {'English': 'Temperature (°C)', 'Amharic': 'ሙቀት (°C)'},
-    'heart_rate': {'English': 'Heart Rate', 'Amharic': 'የልብ ግፊት'},
-    'wbc_count': {'English': 'WBC Count', 'Amharic': 'የነጭ ደም ሴል ብዛት'},
-    'hemoglobin': {'English': 'Hemoglobin', 'Amharic': 'ሄሞግሎቢን'},
-    'malaria_test': {'English': 'Malaria Test', 'Amharic': 'የወባ ምርመራ'},
-    'comorbidity': {'English': 'Comorbidity', 'Amharic': 'የተጨማሪ ታማሚነት'},
-    'season': {'English': 'Season', 'Amharic': 'የወቅት ጊዜ'},
-    'run_assessment': {'English': 'Generate Clinical Support', 'Amharic': 'የክሊኒክ ድጋፍ አዘጋጅ'},
-    'predict_disease': {'English': 'Predict Disease', 'Amharic': 'የበሽታ እትንት'},
-    'predict_risk': {'English': 'Predict Risk', 'Amharic': 'የአደጋ ደረጃ እትንት'},
-    'predict_stay': {'English': 'Predict Stay', 'Amharic': 'የማረፊያ ጊዜ እትንት'},
-    'treatment_recommendation': {'English': 'Treatment Recommendation', 'Amharic': 'የሕክምና ምክር'},
-    'lab_recommendation': {'English': 'Lab Test Recommendation', 'Amharic': 'የላብራቶሪ ምርመራ ምክር'},
-    'model_performance': {'English': 'Model Performance', 'Amharic': 'የሞዴል አፈጻጸም'},
-    'ai_reason': {'English': 'Explainable AI Reason', 'Amharic': 'የAI ምክንያት'},
-    'explanation': {'English': 'Explanation', 'Amharic': 'ምክንያት'},
-    'patient_summary': {'English': 'Patient Summary', 'Amharic': 'የታካሚ ማጠቃለያ'},
-    'confidence': {'English': 'Confidence', 'Amharic': 'እምነት'},
-    'no_data': {'English': 'No', 'Amharic': 'አይ'},
-    'yes_data': {'English': 'Yes', 'Amharic': 'አዎ'},
+    'app_title': {'English': 'EthioHealth-AI Clinical Assistant'},
+    'app_subtitle': {'English': 'Ethiopian Clinical Decision Support with explainable AI'},
+    'language_label': {'English': 'Language'},
+    'sidebar_title': {'English': 'EthioHealth-AI Language Switch'},
+    'page_selector': {'English': 'Navigation'},
+    'page_home': {'English': 'Home'},
+    'page_support': {'English': 'Support'},
+    'patient_profile': {'English': 'Patient Profile'},
+    'age': {'English': 'Age'},
+    'gender': {'English': 'Gender'},
+    'region': {'English': 'Region'},
+    'fever': {'English': 'Fever'},
+    'cough': {'English': 'Cough'},
+    'headache': {'English': 'Headache'},
+    'fatigue': {'English': 'Fatigue'},
+    'vomiting': {'English': 'Vomiting'},
+    'diarrhea': {'English': 'Diarrhea'},
+    'chest_pain': {'English': 'Chest Pain'},
+    'shortness_of_breath': {'English': 'Shortness of Breath'},
+    'dizziness': {'English': 'Dizziness'},
+    'temperature': {'English': 'Temperature (°C)'},
+    'heart_rate': {'English': 'Heart Rate'},
+    'wbc_count': {'English': 'WBC Count'},
+    'hemoglobin': {'English': 'Hemoglobin'},
+    'malaria_test': {'English': 'Malaria Test'},
+    'comorbidity': {'English': 'Comorbidity'},
+    'season': {'English': 'Season'},
+    'run_assessment': {'English': 'Generate Clinical Support'},
+    'predict_disease': {'English': 'Predict Disease'},
+    'predict_risk': {'English': 'Predict Risk'},
+    'predict_stay': {'English': 'Predict Stay'},
+    'treatment_recommendation': {'English': 'Treatment Recommendation'},
+    'lab_recommendation': {'English': 'Lab Test Recommendation'},
+    'model_performance': {'English': 'Model Performance'},
+    'ai_reason': {'English': 'Explainable AI Reason'},
+    'explanation': {'English': 'Explanation'},
+    'patient_summary': {'English': 'Patient Summary'},
+    'confidence': {'English': 'Confidence'},
+    'no_data': {'English': 'No'},
+    'yes_data': {'English': 'Yes'},
     'this_estimate': {
-        'English': 'This estimate is based on the patient profile and clinical risk factors.',
-        'Amharic': 'ይህ ግምገማ በታካሚው መገለጫ እና የሕክምና አደጋ አይነቶች የተመሠረተ ነው።'
+        'English': 'This estimate is based on the patient profile and clinical risk factors.'
     },
     'overview_header': {
-        'English': 'Accelerating Decisions for Ethiopian Healthcare',
-        'Amharic': 'ለኢትዮጵያ ጤና እርምጃ ፈጣን ውሳኔ'
+        'English': 'Accelerating Decisions for Ethiopian Healthcare'
     },
     'overview_text': {
-        'English': 'Use EthioHealth-AI to generate fast disease, risk, and stay predictions with clear explanations. Adjust the language and patient inputs, then evaluate results in a clean clinical interface.',
-        'Amharic': 'EthioHealth-AIን ለፈጣን የበሽታ ፣ የአደጋ ደረጃ እና የማረፊያ ጊዜ ግምገማ ለማጀመር ይጠቀሙ። ቋንቋን ይቀይሩ እና መረጃን ያስገቡ።'
+        'English': 'Use EthioHealth-AI to generate fast disease, risk, and stay predictions with clear explanations. Adjust the language and patient inputs, then evaluate results in a clean clinical interface.'
     },
     'feature_disease': {
-        'English': 'Disease Prediction',
-        'Amharic': 'የበሽታ እትንት'
+        'English': 'Disease Prediction'
     },
     'feature_risk': {
-        'English': 'Risk Level Assessment',
-        'Amharic': 'የአደጋ ደረጃ ግምገማ'
+        'English': 'Risk Level Assessment'
     },
     'feature_stay': {
-        'English': 'Stay Estimate',
-        'Amharic': 'የማረፊያ ጊዜ ግምገማ'
+        'English': 'Stay Estimate'
     },
     'feature_explain': {
-        'English': 'Explainable AI',
-        'Amharic': 'አስረዳዊ AI'
+        'English': 'Explainable AI'
     },
     'feature_clustering': {
-        'English': 'Patient Clustering',
-        'Amharic': 'የታካሚ ክለስተሪንግ'
+        'English': 'Patient Clustering'
     },
     'feature_disease_desc': {
-        'English': 'Predict the most likely disease using clinical and symptom data.',
-        'Amharic': 'በክሊኒክ መረጃ እና ምልክቶች ላይ የተመሰረተ የበሽታ ግምገማ ያድርጉ።'
+        'English': 'Predict the most likely disease using clinical and symptom data.'
     },
     'feature_risk_desc': {
-        'English': 'Estimate Low, Medium, or High risk levels for each patient.',
-        'Amharic': 'ለእያንዳንዱ ታካሚ የዝቅ ፣ መካከለኛ ወይም ከፍተኛ አደጋ ደረጃ ይገምጹ።'
+        'English': 'Estimate Low, Medium, or High risk levels for each patient.'
     },
     'feature_stay_desc': {
-        'English': 'Predict how many days patients are likely to stay in the hospital.',
-        'Amharic': 'ታካሚዎች በሆስፒታል ምን ያህል ቀን እንደሚቀመጡ ይገምጹ።'
+        'English': 'Predict how many days patients are likely to stay in the hospital.'
     },
     'feature_explain_desc': {
-        'English': 'View the top features that influence each prediction.',
-        'Amharic': 'የእያንዱን ግምገማ የሚቀጥሉ እንደሆኑ ምንጮች ይታዩ።'
+        'English': 'View the top features that influence each prediction.'
     },
     'feature_clustering_desc': {
-        'English': 'Group patients into clusters for better clinical insights.',
-        'Amharic': 'ለሕክምና ምክንያቶች ታካሚዎችን ይደርጉ።'
+        'English': 'Group patients into clusters for better clinical insights.'
     },
     'model_missing': {
-        'English': 'Run `python train.py --data your_dataset.csv` to build models first.',
-        'Amharic': 'የሞዴሉን ማከናወን ከመጀመሩ በፊት `python train.py --data your_dataset.csv` ይሂዱ።'
+        'English': 'Run `python train.py --data your_dataset.csv` to build models first.'
     },
     'home_description_title': {
-        'English': 'About This Clinical Decision Support System',
-        'Amharic': 'ስለዚህ የክሊኒክ ውሳኔ ድጋፍ ስርዓት'
+        'English': 'About This Clinical Decision Support System'
     },
     'home_description': {
-        'English': 'This application separates the introduction from the prediction workspace. Use Home to understand the purpose of EthioHealth-AI, then open Support to enter patient information and generate disease, risk, and hospital stay predictions.',
-        'Amharic': 'ይህ መተግበሪያ መግቢያውን ከግምት መስሪያ ቦታው ይለያል። በመነሻ ገጽ EthioHealth-AI ምን እንደሚረዳ ይመልከቱ፣ ከዚያ በድጋፍ ገጽ የታካሚ መረጃ አስገብተው የበሽታ፣ የአደጋ ደረጃ እና የሆስፒታል ቆይታ ግምት ያግኙ።'
+        'English': 'This application separates the introduction from the prediction workspace. Use Home to understand the purpose of EthioHealth-AI, then open Support to enter patient information and generate disease, risk, and hospital stay predictions.'
     },
     'support_title': {
-        'English': 'Prediction Support',
-        'Amharic': 'የግምት ድጋፍ'
+        'English': 'Prediction Support'
     },
     'support_intro': {
-        'English': 'Enter the patient profile in the sidebar, then choose the prediction you want to run.',
-        'Amharic': 'በጎን አሞሌው የታካሚውን መረጃ ያስገቡ፣ ከዚያ ማስኬድ የሚፈልጉትን ግምት ይምረጡ።'
+        'English': 'Enter the patient profile in the sidebar, then choose the prediction you want to run.'
     },
     'description': {
-        'English': 'EthioHealth-AI is designed to help clinicians by generating provisional predictions and explanations based on historical Ethiopian-style healthcare data.',
-        'Amharic': 'EthioHealth-AI በኢትዮጵያዊ የጤና ውሂብ መሠረት እና በቅድሚያ የግምት ምስጢርነት ለክሊኒክ ባለሞያዎች ለማገዝ ተዘጋጅቷል።'
+        'English': 'EthioHealth-AI is designed to help clinicians by generating provisional predictions and explanations based on historical Ethiopian-style healthcare data.'
     }
 }
 
 OPTION_TRANSLATIONS = {
     'YesNo': {
-        'English': {'No': 'No', 'Yes': 'Yes'},
-        'Amharic': {'No': 'አይ', 'Yes': 'አዎ'}
+        'English': {'No': 'No', 'Yes': 'Yes'}
     },
     'Gender': {
-        'English': {'Male': 'Male', 'Female': 'Female', 'Other': 'Other'},
-        'Amharic': {'Male': 'ወንድ', 'Female': 'ሴት', 'Other': 'ሌላ'}
+        'English': {'Male': 'Male', 'Female': 'Female', 'Other': 'Other'}
     },
     'Season': {
-        'English': {'Summer': 'Summer', 'Autumn': 'Autumn', 'Winter': 'Winter', 'Spring': 'Spring'},
-        'Amharic': {'Summer': 'ክረምት', 'Autumn': 'መጋቢት', 'Winter': 'ጥር', 'Spring': 'ጥርስ'}
+        'English': {'Summer': 'Summer', 'Autumn': 'Autumn', 'Winter': 'Winter', 'Spring': 'Spring'}
     },
     'PositiveNegative': {
-        'English': {'Negative': 'Negative', 'Positive': 'Positive', 'Unknown': 'Unknown'},
-        'Amharic': {'Negative': 'ኔጌቲቭ', 'Positive': 'ፖዚቲቭ', 'Unknown': 'አይታወቅም'}
+        'English': {'Negative': 'Negative', 'Positive': 'Positive', 'Unknown': 'Unknown'}
     }
 }
 
@@ -235,30 +212,18 @@ def collect_inputs(lang: str):
     scol1, scol2, scol3 = st.columns(3)
     with scol1:
         symptoms = st.text_area(
-            '📝 ' + ('Symptoms' if lang == 'English' else 'ምልክቶች'),
-            placeholder=(
-                'Enter symptoms here (e.g., high fever, coughing, chest pain)'
-                if lang == 'English' else
-                'ምልክቶችን እዚህ ያስገቡ'
-            )
+            '📝 ' + 'Symptoms',
+            placeholder='Enter symptoms here (e.g., high fever, coughing, chest pain)'
         )
     with scol2:
         free_text_symptoms = st.text_area(
-            '📝 ' + ('Free Text Symptoms' if lang == 'English' else 'የታካሚ ምልክቶች (በነገር ቋንቋ)'),
-            placeholder=(
-                'I have had a high fever for 3 days, coughing and chest pain when breathing'
-                if lang == 'English' else
-                'ለ3 ቀን ከፍተኛ ሙቀት አለኝ፣ ሳምንታዊ ሳምንታዊ እና በመተንፈስ ጊዜ የደረት ህመም'
-            )
+            '📝 ' + 'Free Text Symptoms',
+            placeholder='I have had a high fever for 3 days, coughing and chest pain when breathing'
         )
     with scol3:
         clinical_notes = st.text_area(
-            '🩺 ' + ('Clinical Notes / Additional Info' if lang == 'English' else 'የሕክምና ማስታወሻ / ተጨማሪ መረጃ'),
-            placeholder=(
-                'Patient has diabetes and recently traveled'
-                if lang == 'English' else
-                'ታካሚው የስኳር በሽታ አለው እና በቅርቡ ተጓዝቷል'
-            )
+            '🩺 ' + 'Clinical Notes / Additional Info',
+            placeholder='Patient has diabetes and recently traveled'
         )
 
     gender = translate_option('Gender', gender_display, lang)
@@ -734,8 +699,7 @@ def main():
 
     st.sidebar.markdown('### EthioHealth-AI')
     st.sidebar.caption(get_label('description', st.session_state.lang))
-    lang = st.sidebar.radio(get_label('language_label', 'English'), ['English', 'Amharic'], index=0 if st.session_state.lang == 'English' else 1)
-    st.session_state.lang = lang
+    lang = 'English'
     page_options = {
         get_label('page_home', lang): 'home',
         get_label('page_support', lang): 'support'

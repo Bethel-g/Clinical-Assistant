@@ -82,6 +82,10 @@ def evaluate_regression(y_true, y_pred):
 
 
 def explain_prediction(model, input_array, feature_names, top_n=5):
+    if hasattr(model, 'named_steps'):
+        # Extract the final estimator from the pipeline
+        model = model.steps[-1][1]
+
     if hasattr(model, 'feature_importances_'):
         importances = model.feature_importances_
     elif hasattr(model, 'estimators_') and model.estimators_:

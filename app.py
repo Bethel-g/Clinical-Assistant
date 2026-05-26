@@ -767,8 +767,8 @@ def main():
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button(get_label('predict_disease', lang)):
-            disease_pred = disease_model.predict(processed_input)
-            disease_proba = disease_model.predict_proba(processed_input) if hasattr(disease_model, 'predict_proba') else None
+            disease_pred = disease_model.predict(input_df)
+            disease_proba = disease_model.predict_proba(input_df) if hasattr(disease_model, 'predict_proba') else None
             disease_label = disease_encoder.inverse_transform(disease_pred)[0]
             st.success(f"{get_label('predict_disease', lang)}: {disease_label}")
             st.write(f"{get_label('confidence', lang)}: {get_confidence(disease_proba):.2f}")
@@ -777,8 +777,8 @@ def main():
 
     with col2:
         if st.button(get_label('predict_risk', lang)):
-            risk_pred = risk_model.predict(processed_input)
-            risk_proba = risk_model.predict_proba(processed_input) if hasattr(risk_model, 'predict_proba') else None
+            risk_pred = risk_model.predict(input_df)
+            risk_proba = risk_model.predict_proba(input_df) if hasattr(risk_model, 'predict_proba') else None
             risk_label = risk_encoder.inverse_transform(risk_pred)[0]
             st.warning(f"{get_label('predict_risk', lang)}: {risk_label}")
             st.write(f"{get_label('confidence', lang)}: {get_confidence(risk_proba):.2f}")
@@ -787,7 +787,7 @@ def main():
 
     with col3:
         if st.button(get_label('predict_stay', lang)):
-            stay_pred = stay_model.predict(processed_input)
+            stay_pred = stay_model.predict(input_df)
             st.info(f"{get_label('predict_stay', lang)}: {float(stay_pred[0]):.1f} days")
             st.write(get_label('this_estimate', lang))
 

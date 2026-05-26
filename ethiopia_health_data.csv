@@ -1,0 +1,121 @@
+Age,Gender,Region,Fever,Cough,Headache,Fatigue,Vomiting,Diarrhea,Temperature,Heart Rate,Comorbidity,Season,Disease,Risk_Level,Length_of_Stay
+19,Female,Tigray,Yes,No,Yes,No,No,Yes,38.1,125,No,Winter,Pneumonia,Medium,6.5
+36,Other,Tigray,No,No,Yes,No,No,No,39.9,86,No,Spring,Malaria,Low,3.4
+15,Female,Oromia,Yes,No,No,No,No,No,37.2,121,No,Winter,Flu,Medium,8.7
+46,Male,Oromia,Yes,Yes,Yes,No,Yes,Yes,35.7,69,No,Autumn,Flu,High,15.7
+24,Male,Afar,Yes,Yes,Yes,No,No,No,36.1,73,No,Autumn,Gastroenteritis,High,7.9
+64,Other,Tigray,Yes,Yes,Yes,No,No,No,39.2,128,Yes,Winter,Malaria,High,15.7
+45,Other,Dire Dawa,No,Yes,Yes,No,Yes,No,38.7,120,Yes,Autumn,Gastroenteritis,Low,3.4
+67,Other,Somali,No,No,No,No,Yes,No,38.1,58,Yes,Summer,Malaria,Low,3.3
+59,Female,Amhara,Yes,Yes,Yes,Yes,Yes,No,36.8,127,No,Autumn,Pneumonia,High,9.6
+12,Female,Tigray,Yes,Yes,No,Yes,No,No,37.7,103,No,Summer,Gastroenteritis,High,15.8
+63,Other,Somali,No,Yes,Yes,No,No,Yes,40.1,70,Yes,Summer,Pneumonia,Low,1.3
+52,Female,Southern,No,Yes,No,Yes,Yes,No,37.6,105,Yes,Summer,Pneumonia,Low,10.5
+50,Other,Gambela,Yes,Yes,Yes,Yes,No,No,35.7,79,Yes,Winter,Flu,High,14.3
+77,Male,Addis Ababa,No,No,No,Yes,Yes,Yes,36.9,123,No,Summer,Flu,Low,6.4
+81,Female,Amhara,No,No,Yes,Yes,Yes,No,38.8,120,Yes,Spring,Gastroenteritis,Low,4.4
+7,Other,Benishangul,Yes,No,Yes,No,No,No,38.4,114,No,Autumn,Flu,Medium,12.3
+65,Female,Southern,No,No,Yes,Yes,Yes,Yes,37.8,74,No,Summer,Pneumonia,Low,1.9
+31,Other,Benishangul,No,No,Yes,No,No,Yes,39.3,88,Yes,Autumn,Flu,Low,8.2
+20,Other,Gambela,No,No,No,No,Yes,No,37.6,58,No,Spring,Flu,Low,11.1
+49,Male,Dire Dawa,Yes,Yes,No,Yes,No,Yes,37.7,89,No,Autumn,Pneumonia,High,8.0
+7,Female,Afar,No,No,No,Yes,No,No,37.1,73,Yes,Summer,Typhoid,Low,5.8
+16,Other,Addis Ababa,No,No,No,No,Yes,No,38.1,127,Yes,Spring,Flu,Low,1.1
+69,Male,Southern,Yes,Yes,No,No,Yes,No,35.7,60,Yes,Summer,Pneumonia,High,15.1
+3,Female,Gambela,Yes,Yes,No,No,Yes,Yes,36.5,114,No,Summer,Malaria,High,12.0
+20,Other,Somali,Yes,No,No,Yes,Yes,Yes,35.8,81,Yes,Winter,Flu,High,13.1
+10,Female,Benishangul,No,Yes,Yes,Yes,Yes,No,39.3,123,No,Spring,Malaria,Low,1.2
+56,Other,Dire Dawa,Yes,No,No,No,No,Yes,39.8,91,Yes,Summer,Pneumonia,Medium,9.4
+62,Other,Oromia,Yes,No,Yes,No,No,No,39.1,68,No,Spring,Pneumonia,Medium,12.2
+69,Other,Benishangul,No,Yes,No,Yes,Yes,Yes,38.6,119,Yes,Summer,Flu,Low,11.4
+20,Male,Somali,No,Yes,No,Yes,Yes,No,39.2,99,No,Spring,Malaria,Low,9.8
+66,Male,Gambela,No,No,No,Yes,Yes,No,37.6,77,Yes,Summer,Typhoid,Low,6.7
+4,Female,Benishangul,No,No,Yes,Yes,No,No,36.4,107,Yes,Spring,Typhoid,Low,4.2
+76,Other,Benishangul,Yes,Yes,Yes,No,No,No,40.1,78,No,Autumn,Flu,High,15.4
+22,Other,Southern,No,Yes,Yes,No,Yes,Yes,39.8,120,No,Summer,Malaria,Low,3.4
+6,Other,Afar,Yes,Yes,Yes,No,No,No,38.3,89,Yes,Summer,Malaria,High,6.3
+53,Other,Harari,Yes,Yes,Yes,Yes,No,Yes,40.4,58,Yes,Autumn,Typhoid,High,13.9
+83,Other,Harari,No,Yes,Yes,No,Yes,Yes,37.6,70,Yes,Winter,Typhoid,Low,6.6
+83,Female,Gambela,Yes,Yes,No,Yes,No,No,39.9,112,Yes,Autumn,Flu,High,14.4
+24,Other,Amhara,Yes,Yes,Yes,Yes,Yes,No,36.9,108,Yes,Spring,Flu,High,10.4
+83,Other,Addis Ababa,Yes,No,No,No,Yes,Yes,37.9,88,Yes,Summer,Flu,Medium,3.3
+23,Male,Oromia,No,No,Yes,No,Yes,Yes,38.4,99,Yes,Spring,Typhoid,Low,10.9
+24,Other,Addis Ababa,No,No,No,Yes,No,No,36.3,112,Yes,Summer,Flu,Low,8.0
+48,Female,Southern,No,No,No,Yes,Yes,Yes,40.0,82,Yes,Autumn,Gastroenteritis,Low,8.0
+9,Male,Tigray,Yes,Yes,Yes,Yes,No,No,39.4,83,Yes,Summer,Typhoid,High,11.3
+88,Male,Gambela,Yes,No,No,No,No,Yes,38.5,118,No,Summer,Typhoid,Medium,11.5
+77,Female,Gambela,Yes,No,No,No,Yes,Yes,38.7,84,No,Winter,Flu,Medium,4.1
+76,Other,Tigray,No,Yes,No,Yes,Yes,No,38.6,126,No,Spring,Gastroenteritis,Low,4.5
+11,Other,Tigray,No,No,No,Yes,Yes,No,37.4,114,No,Spring,Flu,Low,2.9
+61,Other,Oromia,No,No,No,No,Yes,Yes,37.8,113,No,Winter,Malaria,Low,11.0
+40,Other,Dire Dawa,No,Yes,Yes,Yes,No,Yes,36.2,108,No,Autumn,Malaria,Low,8.9
+5,Other,Afar,No,No,No,No,No,No,37.2,76,Yes,Winter,Flu,Low,5.4
+78,Other,Tigray,Yes,No,Yes,Yes,No,No,36.7,72,No,Winter,Malaria,High,10.7
+33,Other,Harari,Yes,No,Yes,Yes,No,No,37.4,74,Yes,Spring,Flu,High,9.7
+51,Female,Southern,No,Yes,Yes,Yes,No,Yes,37.6,96,No,Spring,Malaria,Low,1.4
+63,Male,Southern,Yes,Yes,No,Yes,Yes,Yes,40.4,69,No,Autumn,Malaria,High,8.0
+71,Female,Dire Dawa,Yes,Yes,Yes,No,No,No,36.0,69,Yes,Winter,Flu,High,7.5
+89,Female,Tigray,Yes,Yes,Yes,No,Yes,Yes,36.3,61,No,Summer,Malaria,High,15.2
+28,Male,Oromia,No,No,No,Yes,No,No,40.1,88,Yes,Winter,Flu,Low,7.7
+85,Male,Oromia,Yes,Yes,Yes,No,No,Yes,35.6,71,Yes,Summer,Flu,High,9.4
+26,Male,Amhara,Yes,No,No,Yes,No,Yes,36.8,73,No,Autumn,Flu,High,13.8
+26,Other,Tigray,No,No,No,No,No,Yes,38.7,72,No,Summer,Pneumonia,Low,7.3
+29,Other,Dire Dawa,No,No,No,Yes,Yes,No,40.3,122,Yes,Spring,Typhoid,Low,5.5
+42,Other,Addis Ababa,Yes,Yes,Yes,No,No,Yes,39.7,120,Yes,Spring,Typhoid,High,6.2
+26,Other,Harari,Yes,Yes,No,Yes,No,No,39.4,74,Yes,Summer,Pneumonia,High,9.9
+49,Other,Gambela,Yes,Yes,Yes,No,Yes,Yes,36.8,76,Yes,Summer,Malaria,High,9.7
+19,Other,Southern,Yes,Yes,No,Yes,No,No,36.5,111,Yes,Winter,Pneumonia,High,9.4
+82,Other,Amhara,No,No,No,Yes,Yes,No,37.2,96,Yes,Winter,Gastroenteritis,Low,11.7
+70,Male,Dire Dawa,Yes,No,No,Yes,Yes,No,37.4,114,No,Autumn,Pneumonia,High,8.5
+45,Male,Gambela,Yes,Yes,No,Yes,No,No,36.4,68,No,Winter,Gastroenteritis,High,14.3
+25,Female,Southern,No,No,Yes,Yes,Yes,No,39.2,121,Yes,Winter,Typhoid,Low,5.6
+2,Male,Somali,Yes,No,No,No,No,Yes,36.4,68,No,Winter,Typhoid,Medium,8.0
+10,Other,Tigray,Yes,No,No,Yes,No,Yes,38.5,121,No,Winter,Typhoid,High,15.0
+64,Female,Dire Dawa,No,No,Yes,No,No,No,38.3,124,No,Autumn,Gastroenteritis,Low,11.3
+89,Other,Southern,No,Yes,No,No,No,No,35.8,112,No,Winter,Pneumonia,Low,9.2
+33,Male,Harari,No,No,Yes,Yes,No,Yes,35.7,93,Yes,Spring,Pneumonia,Low,2.7
+72,Other,Harari,Yes,Yes,No,No,Yes,No,39.8,126,Yes,Winter,Typhoid,High,13.2
+27,Female,Harari,Yes,No,No,Yes,No,No,38.5,105,No,Spring,Pneumonia,High,13.5
+22,Female,Harari,Yes,No,Yes,No,No,No,40.4,110,Yes,Winter,Flu,Medium,6.9
+23,Male,Tigray,No,No,Yes,Yes,Yes,No,36.3,83,No,Spring,Flu,Low,2.0
+35,Other,Benishangul,No,Yes,Yes,No,Yes,Yes,37.0,92,No,Autumn,Malaria,Low,4.0
+55,Other,Harari,Yes,Yes,Yes,Yes,No,No,37.5,113,No,Winter,Pneumonia,High,16.2
+34,Male,Tigray,Yes,No,Yes,Yes,No,No,38.1,60,Yes,Winter,Flu,High,12.8
+46,Other,Gambela,Yes,Yes,Yes,Yes,Yes,Yes,38.1,71,No,Autumn,Flu,High,9.1
+21,Female,Oromia,Yes,No,No,Yes,No,Yes,39.3,101,No,Winter,Gastroenteritis,High,13.6
+84,Male,Addis Ababa,Yes,Yes,Yes,No,No,Yes,38.7,81,Yes,Summer,Malaria,High,12.0
+37,Male,Tigray,No,No,No,Yes,Yes,Yes,37.7,102,Yes,Winter,Pneumonia,Low,11.1
+2,Female,Amhara,Yes,Yes,Yes,No,No,No,37.7,120,No,Autumn,Typhoid,High,11.1
+82,Male,Tigray,No,No,Yes,Yes,Yes,Yes,38.6,113,Yes,Spring,Pneumonia,Low,3.9
+52,Male,Benishangul,Yes,Yes,Yes,Yes,No,No,37.6,97,No,Autumn,Flu,High,7.2
+31,Male,Addis Ababa,Yes,No,Yes,No,Yes,No,40.1,81,No,Autumn,Malaria,Medium,8.5
+17,Female,Tigray,Yes,Yes,Yes,Yes,Yes,Yes,35.9,125,No,Autumn,Malaria,High,7.8
+83,Female,Southern,Yes,No,Yes,Yes,Yes,Yes,36.8,89,Yes,Winter,Pneumonia,High,14.4
+8,Other,Harari,Yes,No,No,Yes,No,No,37.5,76,Yes,Summer,Malaria,High,16.6
+49,Other,Benishangul,No,No,No,Yes,No,Yes,38.4,70,No,Autumn,Pneumonia,Low,9.9
+72,Other,Harari,Yes,No,No,Yes,Yes,No,35.7,80,Yes,Winter,Pneumonia,High,6.5
+62,Female,Southern,Yes,No,No,Yes,No,Yes,37.8,79,Yes,Spring,Pneumonia,High,16.1
+2,Male,Afar,Yes,No,No,Yes,Yes,Yes,40.0,92,No,Winter,Pneumonia,High,14.7
+37,Female,Addis Ababa,No,No,Yes,Yes,Yes,Yes,37.0,85,Yes,Autumn,Pneumonia,Low,2.6
+64,Male,Dire Dawa,Yes,Yes,Yes,No,Yes,Yes,38.2,64,Yes,Summer,Malaria,High,16.9
+37,Male,Harari,No,No,No,Yes,No,No,38.3,125,No,Summer,Flu,Low,9.8
+1,Other,Harari,Yes,Yes,Yes,No,Yes,No,36.3,82,No,Autumn,Malaria,High,14.6
+77,Other,Addis Ababa,No,No,Yes,Yes,Yes,No,36.5,63,Yes,Summer,Malaria,Low,11.6
+45,Male,Gambela,Yes,Yes,Yes,Yes,No,No,36.0,110,No,Spring,Malaria,High,12.4
+72,Other,Southern,Yes,No,Yes,Yes,No,No,38.4,100,No,Spring,Flu,High,15.6
+85,Male,Somali,No,No,No,No,No,Yes,37.3,109,Yes,Autumn,Flu,Low,7.3
+77,Female,Oromia,No,Yes,Yes,Yes,No,No,35.7,85,Yes,Summer,Flu,Low,12.0
+3,Female,Dire Dawa,Yes,Yes,No,Yes,No,No,38.6,105,No,Autumn,Malaria,High,7.2
+80,Other,Addis Ababa,Yes,Yes,No,Yes,Yes,No,35.8,106,Yes,Summer,Pneumonia,High,9.3
+85,Female,Benishangul,No,No,Yes,Yes,No,No,36.8,102,No,Summer,Flu,Low,11.8
+53,Male,Afar,No,Yes,Yes,Yes,No,Yes,38.7,130,Yes,Autumn,Typhoid,Low,12.0
+76,Other,Tigray,Yes,Yes,Yes,No,No,Yes,35.8,116,No,Spring,Flu,High,16.0
+33,Male,Harari,No,No,No,Yes,Yes,No,37.9,104,Yes,Autumn,Flu,Low,6.2
+44,Male,Gambela,Yes,Yes,No,Yes,Yes,Yes,39.5,82,No,Spring,Pneumonia,High,12.6
+87,Female,Tigray,Yes,Yes,No,Yes,No,No,38.4,96,No,Winter,Pneumonia,High,16.5
+48,Other,Tigray,Yes,No,Yes,Yes,Yes,No,38.6,69,Yes,Autumn,Typhoid,High,14.9
+65,Other,Addis Ababa,No,Yes,No,Yes,Yes,No,39.6,63,No,Autumn,Malaria,Low,3.7
+5,Female,Amhara,Yes,No,No,No,No,Yes,40.2,122,No,Autumn,Malaria,Medium,6.3
+21,Other,Amhara,No,Yes,No,Yes,Yes,No,36.1,122,No,Winter,Flu,Low,3.4
+36,Female,Tigray,Yes,Yes,No,Yes,No,Yes,38.8,62,Yes,Spring,Flu,High,14.3
+15,Female,Somali,No,No,No,Yes,No,No,37.1,110,No,Winter,Pneumonia,Low,3.9

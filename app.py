@@ -721,9 +721,9 @@ def main():
 
     try:
         artifacts = load_artifacts()
-    except FileNotFoundError as e:
-        st.error(str(e))
-        st.info(get_label('model_missing', lang))
+    except Exception as e:
+        st.error(f"Error loading model artifacts: {e}")
+        st.info("This is likely due to a scikit-learn version mismatch or corrupt model files. Try retraining models locally with the same environment or rebooting the Streamlit Cloud server.")
         return
 
     inputs = collect_inputs(lang)

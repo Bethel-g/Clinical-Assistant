@@ -42,47 +42,113 @@ def most_common_by_disease(df, value_column):
     return mapping
 
 
-def train_models(output_dir: str):
-    df = pd.DataFrame()
+def load_and_merge_datasets():
+    df1 = pd.DataFrame()
+    df2 = pd.DataFrame()
+    df3 = pd.DataFrame()
     if os.path.exists('ethiopian_hospital_dataset.xlsx'):
-        df = pd.read_excel('ethiopian_hospital_dataset.xlsx')
-    
+        df1 = pd.read_excel('ethiopian_hospital_dataset.xlsx')
+        df1 = df1.rename(columns={column: column.replace('_', ' ') for column in df1.columns})
+        df1 = df1.rename(columns={'Risk Level': 'Risk_Level', 'Length of Stay': 'Length_of_Stay'})
+        
+    if os.path.exists('clinical_dataset.csv'):
+        df2 = pd.read_csv('clinical_dataset.csv')
+    if os.path.exists('clinical_dataset.xlsx'):
+        df3 = pd.read_excel('clinical_dataset.xlsx')
+
+    rename_map = {
+        'sex': 'Gender',
+        'age': 'Age',
+        'temperature': 'Temperature',
+        'pulse': 'Heart Rate',
+        'target': 'Disease',
+        'weight': 'Weight',
+        'height': 'Height',
+        'bmi': 'BMI',
+        'oxygen_saturation': 'Oxygen Saturation',
+        'blood_pressure_systolic': 'Blood Pressure Systolic',
+        'blood_pressure_diastolic': 'Blood Pressure Diastolic',
+        'pain_score': 'Pain Score'
+    }
+    df2 = df2.rename(columns=rename_map)
+    df3 = df3.rename(columns=rename_map)
+
+    for df_new in [df2, df3]:
+        if 'Gender' in df_new.columns:
+            df_new['Gender'] = df_new['Gender'].str.capitalize()
+            
+    df = pd.concat([df1, df2, df3], ignore_index=True).drop_duplicates()
     if df.empty:
-        raise ValueError("ethiopian_hospital_dataset.xlsx is missing or empty.")
-    
-    df = df.rename(columns={column: column.replace('_', ' ') for column in df.columns})
-    df = df.rename(columns={
-        'Risk Level': 'Risk_Level',
-        'Length of Stay': 'Length_of_Stay'
-    })
+        raise ValueError("All datasets are missing or empty.")
+        
+    # Drop any duplicated columns that might have slipped through
+    df = df.loc[:, ~df.columns.duplicated()]
+    return df
+
+
+def train_models(output_dir: str):
+    df = load_and_merge_datasets()
 
     expected_features = [
         'Age', 'Gender', 'Region', 'Fever', 'Cough', 'Headache', 'Fatigue',
         'Vomiting', 'Diarrhea', 'Chest Pain', 'Shortness of Breath', 'Dizziness',
         'Temperature', 'Heart Rate', 'WBC Count', 'Hemoglobin', 'Malaria Test',
-        'Comorbidity', 'Season'
+        'Comorbidity', 'Season', 'Weight', 'Height', 'BMI', 'Oxygen Saturation', 
+        'Blood Pressure Systolic', 'Blood Pressure Diastolic', 'Pain Score'
     ]
+    
     default_values = {
         'Chest Pain': 'No',
         'Shortness of Breath': 'No',
         'Dizziness': 'No',
         'WBC Count': np.nan,
         'Hemoglobin': np.nan,
-        'Malaria Test': 'Unknown'
+        'Malaria Test': 'Unknown',
+        'Weight': np.nan,
+        'Height': np.nan,
+        'BMI': np.nan,
+        'Oxygen Saturation': np.nan,
+        'Blood Pressure Systolic': np.nan,
+        'Blood Pressure Diastolic': np.nan,
+        'Pain Score': np.nan,
+        'Disease': 'Unknown',
+        'Risk_Level': 'Low',
+        'Length_of_Stay': 0,
+        'Gender': 'Unknown',
+        'Region': 'Unknown',
+        'Fever': 'Unknown',
+        'Cough': 'Unknown',
+        'Headache': 'Unknown',
+        'Fatigue': 'Unknown',
+        'Vomiting': 'Unknown',
+        'Diarrhea': 'Unknown',
+        'Comorbidity': 'Unknown',
+        'Season': 'Unknown',
     }
+    
     for col, default in default_values.items():
         if col not in df.columns:
             df[col] = default
-    for col in expected_features + ['Disease', 'Risk_Level', 'Length_of_Stay']:
-        if col not in df.columns:
-            raise ValueError(f"Missing expected column: {col}")
+
+    # Fill NaNs in Disease with 'Unknown' before encoding
+    df['Disease'] = df['Disease'].fillna('Unknown')
+    df['Risk_Level'] = df['Risk_Level'].fillna('Low')
+
+    # Group rare diseases into 'Other' to prevent massive 1700+ class explosion
+    disease_counts = df['Disease'].value_counts()
+    rare_diseases = disease_counts[disease_counts < 50].index
+    df.loc[df['Disease'].isin(rare_diseases), 'Disease'] = 'Other'
 
     X = df[expected_features].copy()
     y_disease, disease_encoder = encode_labels(df, 'Disease')
     y_risk, risk_encoder = encode_labels(df, 'Risk_Level')
     y_stay = df['Length_of_Stay'].replace({np.nan: 0}).astype(float)
 
-    numeric_features = ['Age', 'Temperature', 'Heart Rate', 'WBC Count', 'Hemoglobin']
+    numeric_features = [
+        'Age', 'Temperature', 'Heart Rate', 'WBC Count', 'Hemoglobin',
+        'Weight', 'Height', 'BMI', 'Oxygen Saturation', 'Blood Pressure Systolic',
+        'Blood Pressure Diastolic', 'Pain Score'
+    ]
     categorical_features = [col for col in expected_features if col not in numeric_features]
 
     # Preprocessor
@@ -94,7 +160,7 @@ def train_models(output_dir: str):
 
     # 2. Split training and testing with 80 20
     X_train, X_test, y_train_disease, y_test_disease, y_train_risk, y_test_risk = train_test_split(
-        X, y_disease, y_risk, test_size=0.2, random_state=42, stratify=y_disease
+        X, y_disease, y_risk, test_size=0.2, random_state=42
     )
     
     X_train_stay, X_test_stay, y_train_stay, y_test_stay = train_test_split(
@@ -103,18 +169,13 @@ def train_models(output_dir: str):
     
     y_multi = np.column_stack((y_disease, y_risk))
     X_train_multi, X_test_multi, y_train_multi, y_test_multi = train_test_split(
-        X, y_multi, test_size=0.2, random_state=42, stratify=y_disease
+        X, y_multi, test_size=0.2, random_state=42
     )
 
-    # 3. Use proper ML pipeline model
+    # 3. Use proper ML pipeline model (only fast models to prevent hanging on large datasets)
     classification_models = {
-        'logistic_regression': LogisticRegression(max_iter=500, random_state=42),
-        'decision_tree': DecisionTreeClassifier(random_state=42),
-        'mlp': MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500, random_state=42),
-        'bagging': BaggingClassifier(
-            estimator=DecisionTreeClassifier(max_depth=8, random_state=42),
-            n_estimators=50, max_samples=0.8, bootstrap=True, n_jobs=-1, random_state=42
-        )
+        'decision_tree': DecisionTreeClassifier(max_depth=15, random_state=42),
+        'random_forest': RandomForestClassifier(n_estimators=30, max_depth=10, n_jobs=-1, random_state=42)
     }
 
     # Disease Models

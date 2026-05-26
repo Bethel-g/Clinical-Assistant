@@ -191,8 +191,13 @@ def collect_inputs(lang: str):
         heart_rate = st.number_input(get_label('heart_rate', lang), min_value=30, max_value=200, value=80)
         wbc_count = st.number_input(get_label('wbc_count', lang), min_value=1000, max_value=50000, value=8000)
         hemoglobin = st.number_input(get_label('hemoglobin', lang), min_value=3.0, max_value=22.0, value=13.0, format='%.1f')
+        weight = st.number_input('Weight (kg)', min_value=0.0, max_value=300.0, value=70.0, format='%.1f')
+        height = st.number_input('Height (cm)', min_value=0.0, max_value=300.0, value=170.0, format='%.1f')
+
         
     with col2:
+        bmi = st.number_input('BMI', min_value=0.0, max_value=100.0, value=24.2, format='%.1f')
+        oxygen_saturation = st.number_input('Oxygen Saturation (%)', min_value=0.0, max_value=100.0, value=98.0, format='%.1f')
         fever_display = st.selectbox(get_label('fever', lang), get_option_choices('YesNo', lang))
         cough_display = st.selectbox(get_label('cough', lang), get_option_choices('YesNo', lang))
         headache_display = st.selectbox(get_label('headache', lang), get_option_choices('YesNo', lang))
@@ -202,6 +207,9 @@ def collect_inputs(lang: str):
         chest_pain_display = st.selectbox(get_label('chest_pain', lang), get_option_choices('YesNo', lang))
 
     with col3:
+        blood_pressure_systolic = st.number_input('Blood Pressure Systolic', min_value=0, max_value=300, value=120)
+        blood_pressure_diastolic = st.number_input('Blood Pressure Diastolic', min_value=0, max_value=200, value=80)
+        pain_score = st.number_input('Pain Score (0-10)', min_value=0, max_value=10, value=0)
         shortness_display = st.selectbox(get_label('shortness_of_breath', lang), get_option_choices('YesNo', lang))
         dizziness_display = st.selectbox(get_label('dizziness', lang), get_option_choices('YesNo', lang))
         malaria_display = st.selectbox(get_label('malaria_test', lang), get_option_choices('PositiveNegative', lang))
@@ -260,6 +268,13 @@ def collect_inputs(lang: str):
         'Malaria Test': malaria_test,
         'Comorbidity': comorbidity,
         'Season': season,
+        'Weight': weight,
+        'Height': height,
+        'BMI': bmi,
+        'Oxygen Saturation': oxygen_saturation,
+        'Blood Pressure Systolic': blood_pressure_systolic,
+        'Blood Pressure Diastolic': blood_pressure_diastolic,
+        'Pain Score': pain_score,
         'Symptoms': symptoms,
         'Free Text Symptoms': free_text_symptoms,
         'Clinical Notes': clinical_notes

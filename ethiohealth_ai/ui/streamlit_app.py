@@ -406,6 +406,75 @@ def risk_class(risk_label: str) -> str:
     return "risk-low"
 
 
+# Maps symptom/vital flags → (test name, reason)
+LAB_RULES = [
+    (lambda i: i.get("Malaria Test") == "Positive",        ("Malaria Blood Smear",         "Positive malaria screening")),
+    (lambda i: i.get("Malaria Test") == "Unknown",         ("Rapid Malaria Test (RDT)",    "Malaria status unknown")),
+    (lambda i: i.get("Fever") == "Yes",                    ("Complete Blood Count (CBC)",  "Fever present")),
+    (lambda i: i.get("Temperature", 0) >= 38.5,            ("Blood Culture",               "High temperature ≥ 38.5 °C")),
+    (lambda i: i.get("Cough") == "Yes",                    ("Chest X-Ray",                 "Cough reported")),
+    (lambda i: i.get("Shortness of Breath") == "Yes",      ("Chest X-Ray",                 "Shortness of breath")),
+    (lambda i: i.get("Chest Pain") == "Yes",               ("ECG / Chest X-Ray",           "Chest pain reported")),
+    (lambda i: i.get("Vomiting") == "Yes",                 ("Stool Culture / ORS Panel",   "Vomiting present")),
+    (lambda i: i.get("Diarrhea") == "Yes",                 ("Stool Culture",               "Diarrhea present")),
+    (lambda i: i.get("WBC Count", 0) >= 11000,             ("Differential WBC Count",      "Elevated WBC count")),
+    (lambda i: i.get("WBC Count", 0) < 4000,               ("Bone Marrow / HIV Screen",    "Low WBC count")),
+    (lambda i: i.get("Hemoglobin", 15) < 10,               ("Iron Studies / Blood Film",   "Low haemoglobin")),
+    (lambda i: i.get("Heart Rate", 80) > 100,              ("ECG",                         "Tachycardia (HR > 100)")),
+    (lambda i: i.get("Fatigue") == "Yes",                  ("Thyroid Function Test (TFT)", "Fatigue reported")),
+    (lambda i: i.get("Headache") == "Yes",                 ("Lumbar Puncture / CT Head",   "Headache present")),
+    (lambda i: i.get("Dizziness") == "Yes",                ("Blood Glucose / BP Check",    "Dizziness reported")),
+    (lambda i: i.get("Comorbidity") == "Yes",              ("Metabolic Panel (BMP)",       "Known comorbidity")),
+]
+
+
+def suggest_lab_orders(inputs: dict, disease_label: str, recommendation_maps: dict) -> list:
+    """Return a list of (test, reason) tuples based on symptom rules + disease map."""
+    seen = set()
+    suggestions = []
+
+    for rule, (test, reason) in LAB_RULES:
+        try:
+            if rule(inputs) and test not in seen:
+                suggestions.append((test, reason))
+                seen.add(test)
+        except Exception:
+            pass
+
+    # Append the disease-level lab order from training data
+    disease_lab = recommendation_maps.get("lab_order_by_disease", {}).get(disease_label)
+    if disease_lab and disease_lab not in seen:
+        suggestions.append((disease_lab, f"Recommended for {disease_label}"))
+
+    return suggestions
+
+
+def render_lab_orders(suggestions: list):
+    if not suggestions:
+        return
+    items_html = "".join(
+        f"""
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:1.1rem;">🔬</span>
+            <div>
+                <div style="font-weight:700;color:var(--text);font-size:0.95rem;">{test}</div>
+                <div style="color:var(--muted);font-size:0.82rem;">{reason}</div>
+            </div>
+        </div>
+        """
+        for test, reason in suggestions
+    )
+    st.markdown(
+        f"""
+        <div style="background:var(--panel);border:1px solid var(--border);border-left:4px solid #0a4658;border-radius:6px;padding:16px 20px;margin-top:16px;">
+            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:10px;letter-spacing:0.05em;">🧪 Suggested Laboratory Orders</div>
+            {items_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_explanation(model, processed_input, feature_names):
     try:
         for line in explain_prediction(model, processed_input, feature_names, top_n=5):
@@ -488,6 +557,7 @@ def main():
                 processed_input = preprocessor.transform(input_df)
                 disease_label, disease_confidence = get_prediction(disease_model, disease_encoder, input_df)
                 risk_label, risk_confidence = get_prediction(risk_model, risk_encoder, input_df)
+                recommendation_maps = artifacts.get("recommendation_maps.joblib", {})
                 st.session_state.assessment = {
                     "input_df": input_df,
                     "processed_input": processed_input,
@@ -497,6 +567,7 @@ def main():
                     "risk_confidence": risk_confidence,
                     "clinical_reason": build_ai_reason(inputs, disease_label),
                     "clinical_notes": clinical_notes,
+                    "lab_suggestions": suggest_lab_orders(inputs, disease_label, recommendation_maps),
                 }
                 st.success("Clinical assessment completed. Open Assessment Results to review the output.")
             except Exception as ex:
@@ -525,6 +596,8 @@ def main():
 
             st.markdown("### Clinical Signal Summary")
             st.write(assessment["clinical_reason"])
+
+            render_lab_orders(assessment.get("lab_suggestions", []))
 
             if assessment.get("clinical_notes"):
                 st.markdown(

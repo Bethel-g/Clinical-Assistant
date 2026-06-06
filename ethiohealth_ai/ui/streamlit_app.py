@@ -344,6 +344,14 @@ def collect_inputs():
             shortness_of_breath = st.selectbox("Shortness of Breath", YES_NO_OPTIONS)
             dizziness = st.selectbox("Dizziness", YES_NO_OPTIONS)
 
+        st.markdown('<div class="section-label">Additional Clinical Notes</div>', unsafe_allow_html=True)
+        clinical_notes = st.text_area(
+            "Doctor\'s Notes",
+            placeholder="Enter any additional symptoms, history, observations, or context the doctor would like to include (e.g. patient looks pale, family history of malaria, duration of symptoms, prior medications...).",
+            height=120,
+            label_visibility="collapsed",
+        )
+
         submitted = st.form_submit_button("Run Clinical Assessment")
 
     inputs = {
@@ -366,7 +374,7 @@ def collect_inputs():
         "Comorbidity": comorbidity,
         "Season": season,
     }
-    return inputs, submitted
+    return inputs, submitted, clinical_notes.strip()
 
 
 
@@ -472,7 +480,7 @@ def main():
     intake_tab, results_tab, summary_tab = st.tabs(["Patient Intake", "Assessment Results", "Patient Summary"])
 
     with intake_tab:
-        inputs, submitted = collect_inputs()
+        inputs, submitted, clinical_notes = collect_inputs()
         input_df = build_input_dataframe(inputs)
 
         if submitted:
@@ -488,6 +496,7 @@ def main():
                     "risk_label": risk_label,
                     "risk_confidence": risk_confidence,
                     "clinical_reason": build_ai_reason(inputs, disease_label),
+                    "clinical_notes": clinical_notes,
                 }
                 st.success("Clinical assessment completed. Open Assessment Results to review the output.")
             except Exception as ex:
@@ -517,6 +526,17 @@ def main():
             st.markdown("### Clinical Signal Summary")
             st.write(assessment["clinical_reason"])
 
+            if assessment.get("clinical_notes"):
+                st.markdown(
+                    f"""
+                    <div style="background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:6px;padding:14px 18px;margin-top:12px;">
+                        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Doctor's Clinical Notes</div>
+                        <div style="white-space:pre-wrap;color:var(--text);font-size:0.97rem;line-height:1.6;">{assessment['clinical_notes']}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
             explanation_col1, explanation_col2 = st.columns(2)
             with explanation_col1:
                 with st.expander("Disease model feature importance", expanded=True):
@@ -530,6 +550,16 @@ def main():
             st.info("Run a clinical assessment from Patient Intake to view the patient summary.")
         else:
             render_patient_summary(assessment["input_df"])
+            if assessment.get("clinical_notes"):
+                st.markdown(
+                    f"""
+                    <div style="background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:6px;padding:14px 18px;margin-top:16px;">
+                        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Doctor's Clinical Notes</div>
+                        <div style="white-space:pre-wrap;color:var(--text);font-size:0.97rem;line-height:1.6;">{assessment['clinical_notes']}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
 
 if __name__ == "__main__":

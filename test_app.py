@@ -6,7 +6,6 @@ required_files = [
     'preprocessor.joblib',
     'disease_model.joblib',
     'risk_model.joblib',
-    'stay_model.joblib',
     'disease_label_encoder.joblib',
     'risk_label_encoder.joblib',
     'feature_names.joblib'
@@ -17,15 +16,12 @@ for f in required_files:
 preprocessor = artifacts['preprocessor.joblib']
 
 inputs = {
-    'Age': 35, 'Gender': 'Male', 'Region': 'Addis Ababa', 'Fever': 'No',
+    'Age': 35, 'Gender': 'Male', 'Fever': 'No',
     'Cough': 'No', 'Headache': 'No', 'Fatigue': 'No', 'Vomiting': 'No',
     'Diarrhea': 'No', 'Chest Pain': 'No', 'Shortness of Breath': 'No',
     'Dizziness': 'No', 'Temperature': 37.0, 'Heart Rate': 80, 'WBC Count': 8000,
     'Hemoglobin': 13.0, 'Malaria Test': 'Negative', 'Comorbidity': 'No',
-    'Season': 'Summer', 'Weight': 70.0, 'Height': 170.0, 'BMI': 24.2,
-    'Oxygen Saturation': 98.0, 'Blood Pressure Systolic': 120,
-    'Blood Pressure Diastolic': 80, 'Pain Score': 0, 'Symptoms': '',
-    'Free Text Symptoms': '', 'Clinical Notes': ''
+    'Season': 'Summer'
 }
 
 input_df = pd.DataFrame([inputs])

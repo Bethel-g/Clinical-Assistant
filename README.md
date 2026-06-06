@@ -11,13 +11,13 @@ EthioHealth-AI is an academic-grade, end-to-end Clinical Decision Support System
 
 ---
 
-## 0. Problem Statement & System Overviewcd /home/bethel/Documents/Projects/MBS/mbs/mbs-api && source ~/.nvm/nvm.sh && npm start
+## 0. Problem Statement & System Overview
 
 
 ### Problem Context
 Ethiopian healthcare systems face critical challenges:
 - **Limited diagnostic resources:** Rural and regional healthcare centers lack access to specialist expertise and advanced diagnostic equipment
-- **High disease burden:** Complex multi-morbidity patterns with overlapping symptomatology (malaria,python test_app.py typhoid, tuberculosis, respiratory infections)
+- **High disease burden:** Complex multi-morbidity patterns with overlapping symptomatology (malaria, typhoid, tuberculosis, respiratory infections)
 - **Resource allocation inefficiency:** Hospitals struggle with bed management and patient flow prediction
 - **Clinician decision support gap:** Practitioners need evidence-based, explainable recommendations that respect local epidemiology
 
@@ -28,6 +28,82 @@ This system addresses these challenges by:
 3. **Localized intelligence:** Trained on 54,651+ Ethiopian patient records capturing geographic and seasonal patterns
 4. **Real-time predictions:** <5ms inference latency enabling live clinical use
 5. **Continuous monitoring:** Tracks model performance drift and data distribution changes over time
+
+---
+
+## Project Structure
+
+The application is organized as a small Python package with thin root-level entrypoints:
+
+```text
+ethiohealth_ai/
+  config.py          Shared paths, feature schema, defaults, artifact names
+  data.py            Dataset loading, column normalization, merge preparation
+  ml.py              Preprocessing, label encoding, metrics, explanations
+  services.py        Saved artifact loading and prediction support helpers
+  training.py        Model training workflow
+  evaluation.py      Model evaluation workflow
+  ui/
+    streamlit_app.py Streamlit interface
+
+app.py               Streamlit launcher
+train.py             Training launcher
+evaluate_model.py    Evaluation launcher
+utils.py             Backwards-compatible imports for older scripts
+models/              Saved joblib model artifacts
+assets/              Generated report and visualization assets
+```
+
+Common commands:
+
+```bash
+streamlit run app.py
+python3 train.py
+python3 evaluate_model.py
+python3 test_app.py
+```
+
+## Runtime Status and Saved Artifacts
+
+The hospital dashboard runs in saved-artifact mode. At startup it loads the trained `.joblib` files from `models/`:
+
+| Artifact | Purpose |
+|---|---|
+| `preprocessor.joblib` | Applies the trained numeric and categorical preprocessing steps |
+| `disease_model.joblib` | Generates disease predictions |
+| `risk_model.joblib` | Generates patient risk-level predictions |
+| `stay_model.joblib` | Estimates length of hospital stay |
+| `disease_label_encoder.joblib` | Converts disease class numbers back to labels |
+| `risk_label_encoder.joblib` | Converts risk class numbers back to labels |
+| `feature_names.joblib` | Supports feature-importance explanations |
+| `training_metrics.joblib` | Stores saved training metrics such as accuracy, F1, RMSE, MAE, and training row count |
+
+Model status is handled by the application startup process:
+
+- If required artifacts are present, the dashboard loads and clinical assessment can run.
+- If an artifact is missing or incompatible, the dashboard shows an error and asks for retraining.
+- Model performance values are kept in `models/training_metrics.joblib` and can be refreshed by running `python3 train.py`.
+- The UI no longer displays a separate system-status sidebar; this documentation is the source for artifact and runtime-status details.
+
+## Algorithms Used
+
+The refactor keeps the same algorithm types already used by the project:
+
+| Purpose | Algorithm / Technique |
+|---|---|
+| Numeric missing values | `SimpleImputer(strategy="median")` |
+| Categorical missing values | `SimpleImputer(strategy="most_frequent")` |
+| Numeric scaling | `StandardScaler` |
+| Categorical encoding | `OneHotEncoder(handle_unknown="ignore")` |
+| Target encoding | `LabelEncoder` |
+| Disease classification candidates | `DecisionTreeClassifier`, `RandomForestClassifier` |
+| Risk classification candidates | `DecisionTreeClassifier`, `RandomForestClassifier` |
+| Selected model rule | Highest weighted F1 score on the test split |
+| Multi-output disease/risk model | `MultiOutputClassifier` with `RandomForestClassifier` |
+| Length-of-stay regression | `RandomForestRegressor` |
+| Patient clustering | `KMeans`, `DBSCAN` |
+| Explanation method | Feature importance / coefficient ranking when exposed by the trained estimator |
+| Evaluation metrics | Accuracy, precision, recall, weighted F1, confusion matrix, MSE, RMSE, MAE, R2 |
 
 ---
 
@@ -589,7 +665,7 @@ Defined under [utils.py](file:///home/betheln/projects/Clinical%20Decision%20Sup
 - **Fixed Random State:** set to `42` to ensure total scientific reproducibility.
 - **Academic Note:** Stratification was intentionally bypassed in our dataset split. Because several rare disease classes in the unified dataset have very low counts, stratification would result in empty splits, leading to mathematical convergence crashes during split phases.
 
-### C. Explored Algorithms
+### C. Algorithms
 The pipeline evaluates several classical, ensemble, and clustering paradigms to optimize performance:
 1. **Logistic Regression:** Serves as the linear baseline for classification.
 2. **Decision Tree Classifier:** Captures non-linear thresholds and powers the Risk Level assessment pipeline (`best_risk_model`).
